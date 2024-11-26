@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import createHttpError from "http-errors";
 import userModel from "./userModel";
+import bcrypt from "bcrypt"
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
 const {name,email,password}=req.body;
@@ -16,6 +17,10 @@ if(user){
     return next(error);
 }
 //process
+
+const hashPassword=await bcrypt.hash(password,10);
+
+
 
 
 //response 
