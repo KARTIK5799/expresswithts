@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
 import createHttpError, { HttpError } from 'http-errors';
 import { config } from './config/config'
+import userRouter from './user/userRouter';
 
 const app = express();
 
@@ -9,11 +10,10 @@ app.use(express.json());
 
 
 app.get('/', (req: Request, res: Response) => {
-const error=createHttpError(400,"Something wehnt wrong ");
-throw error;
-
   res.json({ message: 'Welcome to the app' });
 });
+ 
+app.use("/api/users",userRouter);
 
 
 
