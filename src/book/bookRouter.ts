@@ -8,10 +8,10 @@ const bookRouter =express.Router();
 
 const upload=multer({
 dest:path.resolve(__dirname,'../../public/data/uploads'),
-limits:{fileSize:3e7}
+limits:{fileSize:10 * 1000 * 1000}
 })
 
-bookRouter.post('/create',upload.fields([
+bookRouter.post('/',upload.fields([
     {name:'coverImage',maxCount:1},
     {name:'file',maxCount:1},
 
