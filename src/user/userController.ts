@@ -1,31 +1,50 @@
 import { NextFunction, Request, Response } from "express";
 import createHttpError from "http-errors";
 import userModel from "./userModel";
-import bcrypt from "bcrypt"
+import bcrypt from "bcrypt";
+import { sign } from "jsonwebtoken";
+import { config } from "../config/config";
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
-const {name,email,password}=req.body;
-    //validation
-if(!name||!email|| !password){
-    const error= createHttpError(400,"All Field are Required");
-    return next(error);
-}
+  try {
+    const { name, email, password } = req.body;
 
-const user =await userModel.findOne({email:email});
-if(user){
-    const error=createHttpError(400,'User already Present');
-    return next(error);
-}
-//process
+    // Validation
+    if (!name || !email || !password) {
+      const error = createHttpError(400, "All fields are required");
+      return next(error);
+    }
 
-const hashPassword=await bcrypt.hash(password,10);
+    // Check if user already exists
+    const user = await userModel.findOne({ email: email });
+    if (user) {
+      const error = createHttpError(400, "User already exists");
+      return next(error);
+    }
 
+    // Process
+    const hashPassword = await bcrypt.hash(password, 10);
 
+    // Create user and await result
+    const newUser = await userModel.create({
+      name,
+      email,
+      password: hashPassword,
+    });
+    //jwt token
+    const token = sign(
+      {
+        sub: newUser._id,
+      },
+      config.jwtSecret as string,
+      { expiresIn: "7d" ,algorithm:'ES256',}
+    );
 
-
-//response 
-
-res.json({message:"User Created"});
-}
+    // Response
+    res.status(201).json({ accessToken: token });
+  } catch (err) {
+    next(err);
+  }
+};
 
 export { createUser };
