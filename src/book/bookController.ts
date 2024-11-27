@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import cloudinary from "../config/cloudinary";
 import path, { dirname } from "path";
+import fs from 'node:fs'
 
 
 const createBook = async (req: Request, res: Response, next: NextFunction) => {
@@ -24,14 +25,12 @@ const bookFilePath=path.resolve(__dirname,'../../public/data/uploads',bookFileNa
 const bookFileUploadResult=await cloudinary.uploader.upload(bookFilePath,{
     resource_type:'raw',
     filename_override:bookFileName,
-    folder:"book=pdfs",
+    folder:"book-pdfs",
     format:'pdf'
 })
 
-
-
-
-    console.log('uploded result', uploadResult);
+await fs.promises.unlink(filePath);
+await fs.promises.unlink(bookFilePath);
     res.json({})
 }
 export { createBook };
